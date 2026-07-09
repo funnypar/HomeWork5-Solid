@@ -1,4 +1,5 @@
-﻿using Product_Management.Data;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Product_Management.Data;
 using Product_Management.Services;
 
 namespace Product_Management
@@ -14,17 +15,31 @@ namespace Product_Management
 
             string? choice = Console.ReadLine();
 
-            string source = choice switch
+            var services = new ServiceCollection();
+
+            switch (choice)
             {
-                "1" => "database",
-                "2" => "api",
-                "3" => "file",
-                _ => throw new Exception("Invalid choice.")
-            };
+                case "1":
+                    services.AddTransient<IProductDataSource, DatabaseDataSource>();
+                    break;
 
-            IProductDataSource dataSource = DataSourceFactory.Create(source);
+                case "2":
+                    services.AddTransient<IProductDataSource, ApiDataSource>();
+                    break;
 
-            ProductViewerService viewer = new ProductViewerService(dataSource);
+                case "3":
+                    services.AddTransient<IProductDataSource, FileDataSource>();
+                    break;
+
+                default:
+                    throw new Exception("Invalid choice.");
+            }
+
+            services.AddTransient<ProductViewerService>();
+
+            ServiceProvider provider = services.BuildServiceProvider();
+
+            ProductViewerService viewer = provider.GetRequiredService<ProductViewerService>();
 
             viewer.ShowProducts();
         }
