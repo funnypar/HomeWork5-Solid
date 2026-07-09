@@ -7,13 +7,22 @@ namespace Product_Management
     {
         static void Main()
         {
-            // انتخاب منبع داده
+            Console.WriteLine("Choose data source:");
+            Console.WriteLine("1- Database");
+            Console.WriteLine("2- API");
+            Console.WriteLine("3- File");
 
-            IProductDataSource dataSource = new DatabaseDataSource();
+            string? choice = Console.ReadLine();
 
-            // IProductDataSource dataSource = new ApiDataSource();
+            string source = choice switch
+            {
+                "1" => "database",
+                "2" => "api",
+                "3" => "file",
+                _ => throw new Exception("Invalid choice.")
+            };
 
-            // IProductDataSource dataSource = new FileDataSource();
+            IProductDataSource dataSource = DataSourceFactory.Create(source);
 
             ProductViewerService viewer = new ProductViewerService(dataSource);
 
@@ -21,3 +30,4 @@ namespace Product_Management
         }
     }
 }
+
